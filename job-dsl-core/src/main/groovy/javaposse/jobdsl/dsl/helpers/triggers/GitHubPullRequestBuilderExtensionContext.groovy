@@ -22,4 +22,16 @@ class GitHubPullRequestBuilderExtensionContext implements Context {
             completedStatus(context.completedStatus)
         }
     }
+    
+    /**
+     * Updates the build status during the build.
+     */
+    void buildStatus(@DslContext(GitHubPullRequestBuilderBuildStatusContext) Closure closure) {
+        GitHubPullRequestBuilderBuildStatusContext context = new GitHubPullRequestBuilderBuildStatusContext()
+        ContextHelper.executeInContext(closure, context)
+
+        extensionNodes << new NodeBuilder().'org.jenkinsci.plugins.ghprb.extensions.status.GhprbBuildStatus' {
+            messages(context.messages)
+        }
+    }
 }

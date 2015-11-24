@@ -571,6 +571,61 @@ class TriggerContextSpec extends Specification {
         1 * mockJobManagement.requireMinimumPluginVersion('ghprb', '1.26')
         1 * mockJobManagement.logPluginDeprecationWarning('ghprb', '1.26')
     }
+    
+    def 'call pull request trigger with build status extension'() {
+        when:
+        context.pullRequest {
+            extensions {
+                buildStatus {
+                    completedComment('SUCCESS', 'All is well')
+                    completedComment('FAILURE', 'Something has gone wrong')
+                }
+            }
+        }
+
+        then:
+        with(context.triggerNodes[0]) {
+            name() == 'org.jenkinsci.plugins.ghprb.GhprbTrigger'
+            children().size() == 14
+            adminlist[0].value() == ''
+            whitelist[0].value() == ''
+            orgslist[0].value() == ''
+            cron[0].value() == 'H/5 * * * *'
+            spec[0].value() == 'H/5 * * * *'
+            triggerPhrase[0].value() == ''
+            onlyTriggerPhrase[0].value() == false
+            useGitHubHooks[0].value() == false
+            allowMembersOfWhitelistedOrgsAsAdmin[0].value() == false
+            permitAll[0].value() == false
+            autoCloseFailedPullRequests[0].value() == false
+            commentFilePath[0].value() == ''
+            with(extensions[0]) {
+                children().size() == 1
+                with(children()[0]) {
+                    name() == 'org.jenkinsci.plugins.ghprb.extensions.status.GhprbBuildStatus'
+                    children().size() == 1
+                    with(messages[0]) {
+                        children().size() == 2
+                        with(children()[0]) {
+                            name() == 'org.jenkinsci.plugins.ghprb.extensions.comments.GhprbBuildResultMessage'
+                            children().size() == 2
+                            result[0].value() == 'SUCCESS'
+                            message[0].value() == 'All is well'
+                        }
+                        with(children()[1]) {
+                            name() == 'org.jenkinsci.plugins.ghprb.extensions.comments.GhprbBuildResultMessage'
+                            children().size() == 2
+                            result[0].value() == 'FAILURE'
+                            message[0].value() == 'Something has gone wrong'
+                        }
+                    }
+                }
+            }
+        }
+        1 * mockJobManagement.requirePlugin('ghprb')
+        1 * mockJobManagement.requireMinimumPluginVersion('ghprb', '1.26')
+        1 * mockJobManagement.logPluginDeprecationWarning('ghprb', '1.26')
+    }
 
     def 'call pull request trigger invalid build result'() {
         when:
