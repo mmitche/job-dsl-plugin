@@ -17,6 +17,8 @@
         <f:checkbox name="ignoreExisting" title="Ignore changes" checked="${instance.ignoreExisting}"
                     description="What to do with previously generated jobs and views when generated config is not the same?"/>
     </f:entry>
+    <f:checkbox name="generateDisabledJobs" title="Generate disabled jobs" checked="${instance.generateDisabledJobs}"
+        description="If checked, jobs will be initially disabled."/>
     <f:entry title="Action for removed jobs:" field="removedJobAction">
         <f:select/>
     </f:entry>

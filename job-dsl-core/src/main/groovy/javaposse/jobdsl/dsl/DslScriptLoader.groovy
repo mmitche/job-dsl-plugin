@@ -69,7 +69,8 @@ class DslScriptLoader {
 
                 GeneratedItems generatedItems = new GeneratedItems()
                 generatedItems.configFiles = extractGeneratedConfigFiles(jobParent, scriptRequest.ignoreExisting)
-                generatedItems.jobs = extractGeneratedJobs(jobParent, scriptRequest.ignoreExisting)
+                generatedItems.jobs = extractGeneratedJobs(jobParent, scriptRequest.ignoreExisting, 
+                     scriptRequest.generateJobsAsDisabled)
                 generatedItems.views = extractGeneratedViews(jobParent, scriptRequest.ignoreExisting)
                 generatedItems.userContents = extractGeneratedUserContents(jobParent, scriptRequest.ignoreExisting)
 
@@ -131,7 +132,8 @@ class DslScriptLoader {
     }
 
     private static Set<GeneratedJob> extractGeneratedJobs(JobParent jobParent,
-                                                          boolean ignoreExisting) throws IOException {
+                                                          boolean ignoreExisting, 
+                                                          boolean generateJobsAsDisabled) throws IOException {
         // Iterate jobs which were setup, save them, and convert to a serializable form
         Set<GeneratedJob> generatedJobs = new LinkedHashSet<GeneratedJob>()
         if (jobParent != null) {
@@ -144,6 +146,11 @@ class DslScriptLoader {
                     Job job = (Job) item
                     if (job.previousNamesRegex != null) {
                         jobParent.jm.renameJobMatching(job.previousNamesRegex, job.name)
+                    }
+
+                    // If we should be disabling this job before submitting it, do so now
+                    if (generateJobsAsDisabled) {
+                        job.disabled(true)
                     }
                 }
                 jobParent.jm.createOrUpdateConfig(item, ignoreExisting)

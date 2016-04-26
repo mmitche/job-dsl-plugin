@@ -90,7 +90,7 @@ public final class JenkinsJobManagement extends AbstractJobManagement {
     }
 
     public JenkinsJobManagement(PrintStream outputLogger, EnvVars envVars, AbstractBuild<?, ?> build) {
-        this(outputLogger, envVars, build, LookupStrategy.JENKINS_ROOT);
+        this(outputLogger, envVars, build, LookupStrategy.JENKINS_ROOT, false);
     }
 
     @Override

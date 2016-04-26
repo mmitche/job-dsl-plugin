@@ -93,6 +93,8 @@ public class ExecuteDslScripts extends Builder {
     private final boolean usingScriptText;
 
     private final boolean ignoreExisting;
+    
+    private final boolean generateDisabledJobs;
 
     private final RemovedJobAction removedJobAction;
 
@@ -103,18 +105,26 @@ public class ExecuteDslScripts extends Builder {
     private final String additionalClasspath;
 
     @DataBoundConstructor
-    public ExecuteDslScripts(ScriptLocation scriptLocation, boolean ignoreExisting, RemovedJobAction removedJobAction,
-                             RemovedViewAction removedViewAction, LookupStrategy lookupStrategy,
+    public ExecuteDslScripts(ScriptLocation scriptLocation, boolean ignoreExisting, boolean generateDisabledJobs,
+                             RemovedJobAction removedJobAction, RemovedViewAction removedViewAction, LookupStrategy lookupStrategy,
                              String additionalClasspath) {
         // Copy over from embedded object
         this.usingScriptText = scriptLocation == null || scriptLocation.usingScriptText;
         this.targets = scriptLocation == null ? null : scriptLocation.targets;
         this.scriptText = scriptLocation == null ? null : scriptLocation.scriptText;
         this.ignoreExisting = ignoreExisting;
+        this.generateDisabledJobs = generateDisabledJobs;
         this.removedJobAction = removedJobAction;
         this.removedViewAction = removedViewAction;
         this.lookupStrategy = lookupStrategy == null ? LookupStrategy.JENKINS_ROOT : lookupStrategy;
         this.additionalClasspath = additionalClasspath;
+    }
+    
+    @DataBoundConstructor
+    public ExecuteDslScripts(ScriptLocation scriptLocation, boolean ignoreExisting,
+                             RemovedJobAction removedJobAction, RemovedViewAction removedViewAction, LookupStrategy lookupStrategy,
+                             String additionalClasspath) {
+         this(scriptLocation, ignoreExisting, false, removedJobAction, removedViewAction, lookupStrategy, additionalClasspath);
     }
 
     public ExecuteDslScripts(ScriptLocation scriptLocation, boolean ignoreExisting, RemovedJobAction removedJobAction,
@@ -136,6 +146,7 @@ public class ExecuteDslScripts extends Builder {
         this.scriptText = scriptText;
         this.targets = null;
         this.ignoreExisting = false;
+        this.generateDisabledJobs = false;
         this.removedJobAction = RemovedJobAction.DISABLE;
         this.removedViewAction = RemovedViewAction.IGNORE;
         this.lookupStrategy = LookupStrategy.JENKINS_ROOT;
@@ -160,6 +171,10 @@ public class ExecuteDslScripts extends Builder {
 
     public boolean isIgnoreExisting() {
         return ignoreExisting;
+    }
+    
+    public boolean isGenerateDisabledJobs() {
+        return generateDisabledJobs;
     }
 
     public RemovedJobAction getRemovedJobAction() {
@@ -206,7 +221,7 @@ public class ExecuteDslScripts extends Builder {
             ScriptRequestGenerator generator = new ScriptRequestGenerator(build, env);
             try {
                 Set<ScriptRequest> scriptRequests = generator.getScriptRequests(
-                        targets, usingScriptText, scriptText, ignoreExisting, additionalClasspath
+                        targets, usingScriptText, scriptText, ignoreExisting, generateDisabledJobs, additionalClasspath
                 );
 
                 Set<GeneratedJob> freshJobs = new LinkedHashSet<GeneratedJob>();

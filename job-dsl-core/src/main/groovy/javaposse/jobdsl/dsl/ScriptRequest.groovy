@@ -15,6 +15,9 @@ class ScriptRequest {
 
     // Ignore existing jobs
     final boolean ignoreExisting
+    
+    // Generate all jobs as disabled
+    final boolean generateJobsAsDisabled
 
     ScriptRequest(String location, String body, URL urlRoot) {
         this(location, body, [urlRoot] as URL[])
@@ -27,11 +30,22 @@ class ScriptRequest {
     ScriptRequest(String location, String body, URL urlRoot, boolean ignoreExisting) {
         this(location, body, [urlRoot] as URL[], ignoreExisting)
     }
-
+    
     ScriptRequest(String location, String body, URL[] urlRoots, boolean ignoreExisting) {
+        this(location, body, urlRoots, ignoreExisting, false)
+    }
+    
+    ScriptRequest(String location, String body, URL urlRoot, boolean ignoreExisting, 
+                  boolean generateJobsAsDisabled) {
+        this(location, body, [urlRoot] as URL[], ignoreExisting)
+    }
+
+    ScriptRequest(String location, String body, URL[] urlRoots, boolean ignoreExisting, 
+                  boolean generateJobsAsDisabled) {
         this.location = location
         this.body = body
         this.urlRoots = urlRoots
         this.ignoreExisting = ignoreExisting
+        this.generateJobsAsDisabled = generateJobsAsDisabled
     }
 }
